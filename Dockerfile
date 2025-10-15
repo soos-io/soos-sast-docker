@@ -20,6 +20,8 @@ RUN python3 -m pipx install semgrep
 
 RUN groupadd --system soos && useradd --system --create-home --gid soos soos
 
+RUN mkdir -p /home/soos/wrk && chown -R soos:soos /home/soos/wrk && chmod -R 770 /home/soos/wrk
+
 WORKDIR /home/soos/app
 
 COPY --chown=soos:soos ./src/ ./src/

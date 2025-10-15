@@ -11,11 +11,13 @@ import {
 } from "@soos-io/api-client";
 import AnalysisArgumentParser from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
 import { obfuscateProperties, isNil } from "@soos-io/api-client/dist/utilities";
+import { SOOS_SAST_Docker_CONSTANTS } from "./constants";
 
 interface ISOOSSASTDockerAnalysisArgs extends IBaseScanArguments {
   directoriesToExclude: Array<string>;
   filesToExclude: Array<string>;
   sourceCodePath: string;
+  semgrepConfigs: Array<string>;
 }
 
 const runCommand = (command: string): Promise<void> => {
@@ -93,6 +95,17 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
     },
   );
 
+  analysisArgumentParser.addArgument(
+    "semgrepConfigs",
+    "Comma separated list of semgrep configs to run e.g. 'p/owasp-top-ten, p/cwe-top-25, p/typescript'",
+    {
+      argParser: (value: string) => {
+        return value.split(",").map((config) => config.trim());
+      },
+      defaultValue: [],
+    },
+  );
+
   return analysisArgumentParser.parseArguments();
 };
 
@@ -108,6 +121,13 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
         2,
       ),
     );
+
+    if (args.semgrepConfigs.length > 0) {
+      const configArgs = args.semgrepConfigs.map((c) => `--config=${c}`).join(" ");
+      await runCommand(
+        `semgrep scan --verbose --metrics=off ${configArgs} --sarif --sarif-output=semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+      );
+    }
 
     const soosCliArgs = mapToSoosCliArguments(args);
     soosLogger.info(soosCliArgs);

@@ -41,5 +41,8 @@
   "template-string-converter.enabled": true,
   "search.exclude": {
     "**/build": true
-  }
+  },
+  "cSpell.words": [
+    "soos"
+  ]
 }
