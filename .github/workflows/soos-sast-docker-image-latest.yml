@@ -1,0 +1,37 @@
+name: Push Docker Container Latest
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: soosio/sast
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Promote beta to latest
+        id: promote-beta-to-latest
+        run: |
+          docker pull soosio/sast:beta
+          docker tag soosio/sast:beta soosio/sast:latest
+          docker push soosio/sast:latest
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: soosio/sast
+          short-description: SOOS SAST - The affordable no limit static code analysis vulnerability scanner.
+          readme-filepath: ./README.md
