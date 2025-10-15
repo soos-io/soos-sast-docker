@@ -20,5 +20,5 @@ docker run -u soos -v c:/my-code/src:/home/soos/wrk/:rw -it --rm soosio/sast <pa
 Minimal semgrep
 
 ``` shell
-docker run -u soos -v C:/my-code/src:/home/soos/wrk/:rw -it monkey --logLevel DEBUG --apiKey blah --clientId blah --projectName blah --semgrepConfigs "p/owasp-top-ten, p/cwe-top-25, p/typescript"
+docker run -u soos -v C:/my-code/src:/home/soos/wrk/:rw -v C:/temp:/home/soos/out/:rw -it monkey --logLevel DEBUG --apiKey blah --clientId blah --projectName blah --semgrepConfigs "p/owasp-top-ten, p/cwe-top-25, p/typescript"
 ```

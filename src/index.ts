@@ -6,6 +6,7 @@ import {
   IBaseScanArguments,
   IntegrationName,
   IntegrationType,
+  LogLevel,
   ScanType,
   soosLogger,
 } from "@soos-io/api-client";
@@ -14,9 +15,6 @@ import { obfuscateProperties, isNil } from "@soos-io/api-client/dist/utilities";
 import { SOOS_SAST_Docker_CONSTANTS } from "./constants";
 
 interface ISOOSSASTDockerAnalysisArgs extends IBaseScanArguments {
-  directoriesToExclude: Array<string>;
-  filesToExclude: Array<string>;
-  sourceCodePath: string;
   semgrepConfigs: Array<string>;
 }
 
@@ -58,44 +56,6 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
   );
 
   analysisArgumentParser.addArgument(
-    "directoriesToExclude",
-    "Listing of directories or patterns to exclude from the search for manifest files. eg: **bin/start/**, **/start/**",
-    {
-      argParser: (value: string) => {
-        return value.split(",").map((pattern) => pattern.trim());
-      },
-      defaultValue: [],
-    },
-  );
-
-  analysisArgumentParser.addArgument(
-    "filesToExclude",
-    "Listing of files or patterns patterns to exclude from the search for manifest files. eg: **/sa**.sarif.json/, **/sast.sarif.json",
-    {
-      argParser: (value: string) => {
-        return value.split(",").map((pattern) => pattern.trim());
-      },
-      defaultValue: [],
-    },
-  );
-
-  analysisArgumentParser.addArgument(
-    "sourceCodePath",
-    "The path to start searching for SAST files.",
-    {
-      defaultValue: process.cwd(),
-    },
-  );
-
-  analysisArgumentParser.addArgument(
-    "outputDirectory",
-    "Absolute path where SOOS will write exported reports and SBOMs. eg Correct: /out/sbom/ | Incorrect: ./out/sbom/",
-    {
-      defaultValue: process.cwd(),
-    },
-  );
-
-  analysisArgumentParser.addArgument(
     "semgrepConfigs",
     "Comma separated list of semgrep configs to run e.g. 'p/owasp-top-ten, p/cwe-top-25, p/typescript'",
     {
@@ -122,17 +82,21 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
       ),
     );
 
+    // add --pattern for file matching? and --lang
     if (args.semgrepConfigs.length > 0) {
       const configArgs = args.semgrepConfigs.map((c) => `--config=${c}`).join(" ");
+      const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
       await runCommand(
-        `/home/soos/.local/pipx/venvs/semgrep/bin/semgrep scan --verbose --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+        `/home/soos/.local/pipx/venvs/semgrep/bin/semgrep scan${verboseArg} --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
       );
     }
 
     const soosCliArgs = mapToSoosCliArguments(args);
     soosLogger.info(soosCliArgs);
 
-    await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${args}`);
+    await runCommand(
+      `node ./node_modules/@soos-io/soos-sast/bin/index.js ${args} ${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`,
+    );
   } catch (error) {
     soosLogger.error(`Error: ${error}`);
     soosLogger.always(`Error: ${error} - exit 1`);

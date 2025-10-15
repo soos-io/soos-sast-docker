@@ -15,6 +15,7 @@ RUN apt-get update && \
 
 RUN groupadd --system soos && useradd --system --create-home --gid soos soos
 RUN mkdir -p /home/soos/wrk && chown -R soos:soos /home/soos/wrk && chmod -R 770 /home/soos/wrk
+RUN mkdir -p /home/soos/out && chown -R soos:soos /home/soos/out && chmod -R 770 /home/soos/out
 
 USER soos
 WORKDIR /home/soos
@@ -27,6 +28,6 @@ COPY --chown=soos:soos ./src/ ./src/
 COPY ./tsconfig.json ./
 COPY ./package.json ./
 COPY ./package-lock.json ./
-RUN npm ci && npm run build
+RUN npm ci && npm run build && rm -rf ./src
 
 ENTRYPOINT ["node", "--no-deprecation", "dist/index.js"]
