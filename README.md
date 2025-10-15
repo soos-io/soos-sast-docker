@@ -14,5 +14,11 @@ If you maintain an Open Source project, sign up for the Free as in Beer [SOOS Co
 ## How to Use
 To start the scan you need to run this command from a terminal:
 ``` shell
-docker run -it --rm soosio/sast <parameters>
+docker run -u soos -v c:/my-code/src:/home/soos/wrk/:rw -it --rm soosio/sast <parameters>
+```
+
+Minimal semgrep
+
+``` shell
+docker run -u soos -v C:/my-code/src:/home/soos/wrk/:rw -it monkey --logLevel DEBUG --apiKey blah --clientId blah --projectName blah --semgrepConfigs "p/owasp-top-ten, p/cwe-top-25, p/typescript"
 ```

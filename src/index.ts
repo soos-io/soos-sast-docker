@@ -125,7 +125,7 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
     if (args.semgrepConfigs.length > 0) {
       const configArgs = args.semgrepConfigs.map((c) => `--config=${c}`).join(" ");
       await runCommand(
-        `semgrep scan --verbose --metrics=off ${configArgs} --sarif --sarif-output=semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+        `/home/soos/.local/pipx/venvs/semgrep/bin/semgrep scan --verbose --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
       );
     }
 
