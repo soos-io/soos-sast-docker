@@ -47,7 +47,6 @@ const runCommand = (command: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     soosLogger.debug(`Running command: ${command}`);
     const [cmd, ...args] = splitCommand(command);
-    soosLogger.always("args", args);
     const proc = spawn(cmd, args, { stdio: "inherit" });
     proc.on("close", (code) => {
       if (code === 0) {
@@ -170,7 +169,6 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     );
 
     const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`;
-    const outputDirectory = SOOS_SAST_Docker_CONSTANTS.OutputDirectory;
 
     if (args.semgrepConfigs.length > 0) {
       const semgrepBin = "/home/soos/.local/pipx/venvs/semgrep/bin/semgrep";
@@ -183,10 +181,10 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     }
 
     const soosCliArgs = mapToSoosSastCliArgs(args, {
-      outputDirectory,
+      outputDirectory: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
       filesToExclude: [],
       directoriesToExclude: [],
-      sourceCodePath: sarifOutFile,
+      sourceCodePath: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
     });
     await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`);
   } catch (error) {
