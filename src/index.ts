@@ -3,25 +3,51 @@ import { exit } from "process";
 import { version } from "../package.json";
 import { spawn } from "child_process";
 import {
+  AttributionFileTypeEnum,
+  AttributionFormatEnum,
+  ContributingDeveloperSource,
   IBaseScanArguments,
   IntegrationName,
   IntegrationType,
   LogLevel,
+  OnFailure,
   ScanType,
   soosLogger,
 } from "@soos-io/api-client";
 import AnalysisArgumentParser from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
-import { obfuscateProperties, isNil } from "@soos-io/api-client/dist/utilities";
+import { obfuscateProperties, ensureValue } from "@soos-io/api-client/dist/utilities";
 import { SOOS_SAST_Docker_CONSTANTS } from "./constants";
 
-interface ISOOSSASTDockerAnalysisArgs extends IBaseScanArguments {
+interface ISASTDockerAnalysisArgs extends IBaseScanArguments {
   semgrepConfigs: Array<string>;
 }
+
+// NOTE: these are the underlying args for SOOS SAST
+interface ISASTAnalysisArgs extends IBaseScanArguments {
+  directoriesToExclude: Array<string>;
+  filesToExclude: Array<string>;
+  sourceCodePath: string;
+  outputDirectory: string;
+}
+
+const splitCommand = (input: string): string[] => {
+  const regex = /[^\s"]+|"([^"]*)"/g;
+  const result: string[] = [];
+
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(input)) !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    result.push(match[1] ?? match[0]);
+  }
+
+  return result;
+};
 
 const runCommand = (command: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     soosLogger.debug(`Running command: ${command}`);
-    const [cmd, ...args] = command.split(" ");
+    const [cmd, ...args] = splitCommand(command);
+    soosLogger.always("args", args);
     const proc = spawn(cmd, args, { stdio: "inherit" });
     proc.on("close", (code) => {
       if (code === 0) {
@@ -34,20 +60,81 @@ const runCommand = (command: string): Promise<void> => {
   });
 };
 
-const mapToSoosCliArguments = (parameters: ISOOSSASTDockerAnalysisArgs): string => {
-  return Object.entries(parameters)
-    .filter(([, value]) => !isNil(value))
+const mapToSoosSastCliArgs = (
+  args: ISASTDockerAnalysisArgs,
+  overrides: Partial<ISASTAnalysisArgs>,
+): string => {
+  const soosSastArgs: ISASTAnalysisArgs = {
+    apiKey: overrides.apiKey ?? args.apiKey,
+    apiURL: overrides.apiURL ?? args.apiURL,
+    appVersion: overrides.appVersion ?? args.appVersion,
+    branchName: overrides.branchName ?? args.branchName,
+    branchURI: overrides.branchURI ?? args.branchURI,
+    buildURI: overrides.buildURI ?? args.buildURI,
+    buildVersion: overrides.buildVersion ?? args.buildVersion,
+    clientId: overrides.clientId ?? args.clientId,
+    commitHash: overrides.commitHash ?? args.commitHash,
+    contributingDeveloperId: overrides.contributingDeveloperId ?? args.contributingDeveloperId,
+    contributingDeveloperSource:
+      overrides.contributingDeveloperSource ?? args.contributingDeveloperSource,
+    contributingDeveloperSourceName:
+      overrides.contributingDeveloperSourceName ?? args.contributingDeveloperSourceName,
+    directoriesToExclude: ensureValue(
+      overrides.directoriesToExclude,
+      "overrides.directoriesToExclude",
+    ),
+    exportFileType: overrides.exportFileType ?? args.exportFileType,
+    exportFormat: overrides.exportFormat ?? args.exportFormat,
+    filesToExclude: ensureValue(overrides.filesToExclude, "overrides.filesToExclude"),
+    integrationName: overrides.integrationName ?? args.integrationName,
+    integrationType: overrides.integrationType ?? args.integrationType,
+    logLevel: overrides.logLevel ?? args.logLevel,
+    onFailure: overrides.onFailure ?? args.onFailure,
+    operatingEnvironment: overrides.operatingEnvironment ?? args.operatingEnvironment,
+    outputDirectory: ensureValue(overrides.outputDirectory, "overrides.outputDirectory"),
+    projectName: overrides.projectName ?? args.projectName,
+    scanType: overrides.scanType ?? args.scanType,
+    scriptVersion: overrides.scriptVersion ?? args.scriptVersion,
+    sourceCodePath: ensureValue(overrides.sourceCodePath, "overrides.sourceCodePath"),
+  };
+
+  const enumProps: Partial<Record<keyof ISASTAnalysisArgs, unknown>> = {
+    integrationName: IntegrationName,
+    integrationType: IntegrationType,
+    logLevel: LogLevel,
+    exportFormat: AttributionFormatEnum,
+    exportFileType: AttributionFileTypeEnum,
+    contributingDeveloperSource: ContributingDeveloperSource,
+    onFailure: OnFailure,
+  };
+
+  return Object.entries(soosSastArgs)
     .map(([key, value]) => {
-      if (typeof value === "boolean") {
-        return value ? `--${key}` : "";
-      } else {
-        return `--${key}="${value}"`;
+      if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
+        return null;
       }
+
+      if (enumProps[key as keyof ISASTAnalysisArgs]) {
+        return value === "Unknown"
+          ? null
+          : Array.isArray(value)
+            ? `--${key} ${value.join(",")}`
+            : `--${key} ${value}`;
+      }
+
+      if (typeof value === "boolean") {
+        return `--${key}`;
+      }
+
+      return Array.isArray(value)
+        ? `--${key} ${value.map((v) => `"${v}"`).join(",")}`
+        : `--${key} "${value}"`;
     })
+    .filter((a) => a !== null)
     .join(" ");
 };
 
-const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
+const parseArgs = (): ISASTDockerAnalysisArgs => {
   const analysisArgumentParser = AnalysisArgumentParser.create(
     IntegrationName.SoosSast,
     IntegrationType.Plugin,
@@ -73,7 +160,7 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
   try {
     const args = parseArgs();
     soosLogger.setMinLogLevel(args.logLevel);
-    soosLogger.always("Starting SOOS SAST Docker Analysis");
+    soosLogger.always("Starting SOOS SAST Analysis via Docker");
     soosLogger.debug(
       JSON.stringify(
         obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
@@ -82,21 +169,26 @@ const parseArgs = (): ISOOSSASTDockerAnalysisArgs => {
       ),
     );
 
-    // add --pattern for file matching? and --lang
+    const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`;
+    const outputDirectory = SOOS_SAST_Docker_CONSTANTS.OutputDirectory;
+
     if (args.semgrepConfigs.length > 0) {
+      const semgrepBin = "/home/soos/.local/pipx/venvs/semgrep/bin/semgrep";
       const configArgs = args.semgrepConfigs.map((c) => `--config=${c}`).join(" ");
       const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
+      // TODO add --pattern for file matching? and --lang for limiting targets?
       await runCommand(
-        `/home/soos/.local/pipx/venvs/semgrep/bin/semgrep scan${verboseArg} --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+        `${semgrepBin} scan${verboseArg} --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
       );
     }
 
-    const soosCliArgs = mapToSoosCliArguments(args);
-    soosLogger.info(soosCliArgs);
-
-    await runCommand(
-      `node ./node_modules/@soos-io/soos-sast/bin/index.js ${args} ${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`,
-    );
+    const soosCliArgs = mapToSoosSastCliArgs(args, {
+      outputDirectory,
+      filesToExclude: [],
+      directoriesToExclude: [],
+      sourceCodePath: sarifOutFile,
+    });
+    await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`);
   } catch (error) {
     soosLogger.error(`Error: ${error}`);
     soosLogger.always(`Error: ${error} - exit 1`);
