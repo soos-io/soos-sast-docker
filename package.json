@@ -1,0 +1,62 @@
+{
+  "name": "soos-sast-docker",
+  "version": "0.1.0",
+  "description": "SOOS SAST - The affordable no limit web vulnerability scanner. Scan your code for vulnerabilities. Register for a free trial at https://app.soos.io/register",
+  "main": "index.js",
+  "scripts": {
+    "setup:install": "npm install",
+    "setup:clean-install": "npm ci",
+    "setup:update": "npx npm-check -u",
+    "setup:clean": "npx rimraf node_modules && npx rimraf package-lock.json",
+    "build": "tsc",
+    "build:clean": "npx rimraf build",
+    "format": "prettier ./src --check",
+    "format:fix": "prettier ./src --write",
+    "lint": "eslint --max-warnings 0",
+    "lint:fix": "eslint --max-warnings 0 --fix",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format && npm run lint && npm run typecheck && (npm outdated || exit 0)",
+    "link:soos-api-client": "npm link @soos-io/api-client && npm run build && npm link",
+    "patch": "npm version patch --no-git-tag-version",
+    "patch-api-client": "npm run patch && npm run setup:clean && npm install @soos-io/api-client@latest --save-exact && npm install && npm run check",
+    "update-soos-sast": "npm install @soos-io/soos-sast@latest --save-exact && npm run check",
+    "knip": "knip"
+  },
+  "dependencies": {
+    "@soos-io/api-client": "1.9.7",
+    "@soos-io/soos-sast": "1.2.7",
+    "@types/node": "^22.18.11",
+    "tslib": "^2.8.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.0",
+    "eslint": "^9.30.0",
+    "globals": "^16.3.0",
+    "knip": "^5.66.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soos-io/soos-sast-docker.git"
+  },
+  "keywords": [
+    "@soos-io",
+    "sast",
+    "soos api",
+    "vulnerabilities",
+    "licenses",
+    "soos",
+    "open source",
+    "oss",
+    "docker",
+    "zap"
+  ],
+  "author": "SOOS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soos-io/soos-sast-docker/issues"
+  },
+  "homepage": "https://github.com/soos-io/soos-sast-docker#readme"
+}
