@@ -11,6 +11,7 @@ RUN apt-get update && \
         curl \
         git \
         build-essential \
+        wget \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system soos && useradd --system --create-home --gid soos soos
@@ -21,6 +22,13 @@ USER soos
 WORKDIR /home/soos
 
 RUN pipx ensurepath
+
+RUN curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
+    | grep "browser_download_url.*linux_x64\.tar\.gz" \
+    | cut -d '"' -f 4 \
+    | wget -qi - -O gitleaks.tar.gz
+RUN tar -xzf gitleaks.tar.gz && rm gitleaks.tar.gz
+
 RUN python3 -m pipx install sonar-tools
 RUN python3 -m pipx install semgrep
 

@@ -18,8 +18,17 @@ import AnalysisArgumentParser from "@soos-io/api-client/dist/services/AnalysisAr
 import { obfuscateProperties, ensureValue } from "@soos-io/api-client/dist/utilities";
 import { SOOS_SAST_Docker_CONSTANTS } from "./constants";
 
+enum SarifGeneratorEnum {
+  Unknown = "Unknown",
+  File = "File",
+  Gitleaks = "Gitleaks",
+  Semgrep = "Semgrep",
+  SonarQube = "SonarQube",
+}
+
 interface ISASTDockerAnalysisArgs extends IBaseScanArguments {
-  semgrepConfigs: Array<string>;
+  sarifGenerator: SarifGeneratorEnum;
+  otherOptions: string;
 }
 
 // NOTE: these are the underlying args for SOOS SAST
@@ -141,15 +150,16 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     version,
   );
 
+  analysisArgumentParser.addEnumArgument(
+    "sarifGenerator",
+    SarifGeneratorEnum,
+    "Generator (or file source) for SOOS SAST's Sarif 2.1 input. Defaults to Semgrep.",
+    { defaultValue: SarifGeneratorEnum.Semgrep },
+  );
+
   analysisArgumentParser.addArgument(
-    "semgrepConfigs",
-    "Comma separated list of semgrep configs to run e.g. 'p/owasp-top-ten, p/cwe-top-25, p/typescript'",
-    {
-      argParser: (value: string) => {
-        return value.split(",").map((config) => config.trim());
-      },
-      defaultValue: [],
-    },
+    "otherOptions",
+    "Other command line arguments sent directly to the Sarif generator.",
   );
 
   return analysisArgumentParser.parseArguments();
@@ -170,14 +180,36 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
 
     const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`;
 
-    if (args.semgrepConfigs.length > 0) {
-      const semgrepBin = "/home/soos/.local/pipx/venvs/semgrep/bin/semgrep";
-      const configArgs = args.semgrepConfigs.map((c) => `--config=${c}`).join(" ");
-      const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
-      // TODO add --pattern for file matching? and --lang for limiting targets?
-      await runCommand(
-        `${semgrepBin} scan${verboseArg} --max-log-list-entries=1000 --metrics=off ${configArgs} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
-      );
+    switch (args.sarifGenerator) {
+      case SarifGeneratorEnum.File: {
+        soosLogger.info(
+          `Checking ${SOOS_SAST_Docker_CONSTANTS.OutputDirectory} for *.sarif.json files.`,
+        );
+        break;
+      }
+      case SarifGeneratorEnum.Gitleaks: {
+        const gitLeaksOptions =
+          args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "";
+        const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
+        await runCommand(
+          `./gitleaks dir${verboseArg} --exit-code 0 --report-format sarif --report-path ${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory} ${gitLeaksOptions}`,
+        );
+        break;
+      }
+      case SarifGeneratorEnum.Semgrep: {
+        const semgrepBin = "/home/soos/.local/pipx/venvs/semgrep/bin/semgrep";
+        const semgrepOptions =
+          args.otherOptions && args.otherOptions.length > 0
+            ? args.otherOptions
+            : "--metrics=off --config p/owasp-top-ten --config p/cwe-top-25";
+        const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
+        await runCommand(
+          `${semgrepBin} scan${verboseArg} --max-log-list-entries=1000 ${semgrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+        );
+        break;
+      }
+      default:
+        throw new Error(`Sarif generator not implemented: ${args.sarifGenerator}`);
     }
 
     const soosCliArgs = mapToSoosSastCliArgs(args, {

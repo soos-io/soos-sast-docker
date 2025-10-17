@@ -43,6 +43,10 @@
     "**/build": true
   },
   "cSpell.words": [
+    "sarif",
+    "SAST",
+    "Semgrep",
+    "SonarQube",
     "soos"
   ]
 }
