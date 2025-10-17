@@ -18,4 +18,4 @@ jobs:
           tags: soosio/sast:${{ github.sha }}
       - name: Run Tests
         run: |
-          docker run -u soos -v ./src:/home/soos/wrk/:rw -v ./:/home/soos/out/:rw soosio/sast:${{ github.sha }} --clientId=${{secrets.SOOS_CLIENT_ID}} --apiKey=${{secrets.SOOS_API_KEY}} --apiURL="https://dev-api.soos.io/api/" --projectName="soos-sast-docker image test"
+          docker run -u soos -v ./src:/home/soos/wrk/:r soosio/sast:${{ github.sha }} --clientId=${{secrets.SOOS_CLIENT_ID}} --apiKey=${{secrets.SOOS_API_KEY}} --apiURL="https://dev-api.soos.io/api/" --projectName="soos-sast-docker image test"
