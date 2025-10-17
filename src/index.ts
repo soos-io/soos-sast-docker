@@ -178,7 +178,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       ),
     );
 
-    const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/semgrep.sarif.json`;
+    const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/soosio.sast.sarif.json`;
 
     switch (args.sarifGenerator) {
       case SarifGeneratorEnum.File: {
@@ -205,6 +205,18 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
           `${semgrepBin} scan${verboseArg} --max-log-list-entries=1000 ${semgrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+        );
+        break;
+      }
+      case SarifGeneratorEnum.SonarQube: {
+        const sonarToolsBin = "/home/soos/.local/pipx/venvs/sonar-tools/bin/sonar-findings-export";
+        const sonarToolOptions =
+          args.otherOptions && args.otherOptions.length > 0
+            ? args.otherOptions
+            : "--httpTimeout 60";
+        const verboseArg = args.logLevel == LogLevel.DEBUG ? " -v DEBUG" : "";
+        await runCommand(
+          `${sonarToolsBin}${verboseArg} --format sarif ${sonarToolOptions} --file ${sarifOutFile}`,
         );
         break;
       }
