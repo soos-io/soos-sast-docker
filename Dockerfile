@@ -9,7 +9,6 @@ RUN apt-get update && \
         python3-pip \
         pipx \
         curl \
-        git \
         build-essential \
         wget \
     && rm -rf /var/lib/apt/lists/*

@@ -201,7 +201,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
         const semgrepOptions =
           args.otherOptions && args.otherOptions.length > 0
             ? args.otherOptions
-            : "--metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
+            : "--no-git-ignore --metrics=off --config=p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : ""; // note: -q still dumps the results to stdout https://semgrep.dev/docs/kb/semgrep-code/collect-cli-logs
         await runCommand(
           `${semgrepBin} scan${verboseArg} --max-log-list-entries=1000 ${semgrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
