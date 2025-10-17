@@ -59,12 +59,12 @@ The `--otherOptions` parameter allows you to pass in available options for the [
 
 | Argument | Default | Description |
 | --- | --- | --- |
-| `--apiKey` |  | SOOS API Key - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). Uses `SOOS_API_KEY` env value if present. |
+| `--apiKey` |  | SOOS API Key - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). |
 | `--branchName` |  | The name of the branch from the SCM System |
 | `--branchURI` |  | The URI to the branch from the SCM System |
 | `--buildURI` |  | URI to CI build info |
 | `--buildVersion` |  | Version of application build artifacts |
-| `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). Uses `SOOS_API_CLIENT` env value if present. |
+| `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). |
 | `--commitHash` |  | The commit hash value from the SCM System |
 | `--exportFormat`   |  | Write the scan result to this file format. Options: CsafVex, CycloneDx, Sarif, Spdx, SoosIssues, SoosLicenses, SoosPackages, SoosVulnerabilities |
 | `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json, Text, Xml                                       |
