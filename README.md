@@ -54,3 +54,24 @@ docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast 
 ```
 
 The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools?tab=readme-ov-file#sonar-findings-export)
+
+### soosio/sast Parameters
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| `--apiKey` |  | SOOS API Key - get yours from [SOOS Integration](https://app.soos.io/integrate/dast). Uses `SOOS_API_KEY` env value if present. |
+| `--branchName` |  | The name of the branch from the SCM System |
+| `--branchURI` |  | The URI to the branch from the SCM System |
+| `--buildURI` |  | URI to CI build info |
+| `--buildVersion` |  | Version of application build artifacts |
+| `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). Uses `SOOS_API_CLIENT` env value if present. |
+| `--commitHash` |  | The commit hash value from the SCM System |
+| `--exportFormat`   |  | Write the scan result to this file format. Options: CsafVex, CycloneDx, Sarif, Spdx, SoosIssues, SoosLicenses, SoosPackages, SoosVulnerabilities |
+| `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json, Text, Xml                                       |
+| `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
+| `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure |
+| `--operatingEnvironment` |  | Set Operating environment for information purposes only |
+| `--otherOptions` |  | Additional arguments passed to the sarif generator |
+| `--projectName` |  | Project Name - this is what will be displayed in the SOOS app |
+| `--sarifGenerator` |  | The generator for Sarif 2.1 ingest: file, semgrep, sonarqube, gitleaks |
+
