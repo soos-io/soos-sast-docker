@@ -179,12 +179,12 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     );
 
     const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/soosio.sast.sarif.json`;
+    let sourceCodePath = SOOS_SAST_Docker_CONSTANTS.OutputDirectory;
 
     switch (args.sarifGenerator) {
       case SarifGeneratorEnum.File: {
-        soosLogger.info(
-          `Checking ${SOOS_SAST_Docker_CONSTANTS.OutputDirectory} for *.sarif.json files.`,
-        );
+        sourceCodePath = SOOS_SAST_Docker_CONSTANTS.WorkingDirectory;
+        soosLogger.info(`Checking ${sourceCodePath} for *.sarif.json files.`);
         break;
       }
       case SarifGeneratorEnum.Gitleaks: {
@@ -228,7 +228,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       outputDirectory: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
       filesToExclude: [],
       directoriesToExclude: [],
-      sourceCodePath: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
+      sourceCodePath,
     });
     await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`);
   } catch (error) {
