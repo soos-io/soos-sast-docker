@@ -50,7 +50,7 @@ docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast 
 ### SonarQube
 If you are using SonarQube, you can export your issues from your instance:
 ``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
 The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools?tab=readme-ov-file#sonar-findings-export)
