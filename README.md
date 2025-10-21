@@ -36,6 +36,11 @@ To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
+To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--config=auto" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
 ### Gitleaks
 To run Gitleaks:
 ``` shell
@@ -55,6 +60,8 @@ docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOption
 
 The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools?tab=readme-ov-file#sonar-findings-export)
 
+If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS accessible, you will need to use the Docker host URL, e.g. `--otherOptions "-url http://host.docker.internal:9000 ..."`
+
 ### soosio/sast Parameters
 
 | Argument | Default | Description |
@@ -66,8 +73,8 @@ The `--otherOptions` parameter allows you to pass in available options for the [
 | `--buildVersion` |  | Version of application build artifacts |
 | `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). |
 | `--commitHash` |  | The commit hash value from the SCM System |
-| `--exportFormat`   |  | Write the scan result to this file format. Options: CsafVex, CycloneDx, Sarif, Spdx, SoosIssues, SoosLicenses, SoosPackages, SoosVulnerabilities |
-| `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json, Text, Xml                                       |
+| `--exportFormat`   |  | Write the scan result to this file format. Options: SoosIssues |
+| `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json |
 | `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure |
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only |

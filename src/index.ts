@@ -52,13 +52,13 @@ const splitCommand = (input: string): string[] => {
   return result;
 };
 
-const runCommand = (command: string): Promise<void> => {
+const runCommand = (command: string, throwOnNonZeroExitCode: boolean = true): Promise<void> => {
   return new Promise((resolve, reject) => {
     soosLogger.debug(`Running command: ${command}`);
     const [cmd, ...args] = splitCommand(command);
     const proc = spawn(cmd, args, { stdio: "inherit" });
     proc.on("close", (code) => {
-      if (code === 0) {
+      if (code === 0 || !throwOnNonZeroExitCode) {
         resolve();
       } else {
         reject(new Error(`${cmd} failed with exit code ${code}`));
@@ -230,7 +230,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       directoriesToExclude: [],
       sourceCodePath,
     });
-    await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`);
+    await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`, false);
   } catch (error) {
     soosLogger.error(`Error: ${error}`);
     soosLogger.always(`Error: ${error} - exit 1`);
