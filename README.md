@@ -25,22 +25,6 @@ If you have Sarif 2.1 files, you can point soosio/sast to the directory containi
 docker run -u soos -v c:/my-sarif-folder:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator file --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-### Semgrep
-To run Semgrep against your source code:
-``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --apiKey xxxx --clientId xxxx --projectName xxxx
-```
-
-To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
-``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
-```
-
-To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
-``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--config=auto" --apiKey xxxx --clientId xxxx --projectName xxxx
-```
-
 ### Gitleaks
 To run Gitleaks:
 ``` shell
@@ -52,13 +36,35 @@ To customize the Gitleaks execution, you can pass in `--otherOptions`, e.g.
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --otherOptions "--max-archive-depth 1 --max-target-megabytes 10" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
+### Opengrep
+To run Opengrep against your source code:
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+### Semgrep
+To run Semgrep against your source code:
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--config=auto" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
 ### SonarQube
 If you are using SonarQube, you can export your issues from your instance:
 ``` shell
-docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz -k myProjectKey" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools?tab=readme-ov-file#sonar-findings-export)
+The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools/blob/master/doc/sonar-findings-export.md)
 
 If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS accessible, you will need to use the Docker host URL, e.g. `--otherOptions "-url http://host.docker.internal:9000 ..."`
 
@@ -80,5 +86,5 @@ If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only |
 | `--otherOptions` |  | Additional arguments passed to the sarif generator |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app |
-| `--sarifGenerator` |  | The generator for Sarif 2.1 ingest: file, semgrep, sonarqube, gitleaks |
+| `--sarifGenerator` |  | The generator for Sarif 2.1 ingest: file, gitleaks, opengrep, semgrep, sonarqube |
 

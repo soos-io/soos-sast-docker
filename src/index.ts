@@ -22,6 +22,7 @@ enum SarifGeneratorEnum {
   Unknown = "Unknown",
   File = "File",
   Gitleaks = "Gitleaks",
+  Opengrep = "Opengrep",
   Semgrep = "Semgrep",
   SonarQube = "SonarQube",
 }
@@ -193,6 +194,16 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
           `./gitleaks dir${verboseArg} --exit-code 0 --report-format sarif --report-path ${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory} ${gitLeaksOptions}`,
+        );
+        break;
+      }
+      case SarifGeneratorEnum.Opengrep: {
+        const opengrepBin = "/home/soos/.local/bin/opengrep";
+        const opengrepOptions =
+          args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "--no-git-ignore";
+        const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
+        await runCommand(
+          `${opengrepBin} scan${verboseArg} --max-log-list-entries=2000 ${opengrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }

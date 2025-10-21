@@ -43,6 +43,7 @@
     "**/build": true
   },
   "cSpell.words": [
+    "Opengrep",
     "sarif",
     "SAST",
     "Semgrep",

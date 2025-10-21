@@ -27,6 +27,7 @@ RUN curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
     | cut -d '"' -f 4 \
     | wget -qi - -O gitleaks.tar.gz \
     && tar -xzf gitleaks.tar.gz && rm gitleaks.tar.gz
+RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
 RUN python3 -m pipx install sonar-tools
 RUN python3 -m pipx install semgrep
 
