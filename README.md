@@ -73,7 +73,7 @@ If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS
 | `--buildVersion` |  | Version of application build artifacts |
 | `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/sast). |
 | `--commitHash` |  | The commit hash value from the SCM System |
-| `--exportFormat`   |  | Write the scan result to this file format. Options: SoosIssues |
+| `--exportFormat`   |  | Write the scan result to this file format. Options: Sarif, SoosIssues |
 | `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json |
 | `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure |
