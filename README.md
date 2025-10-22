@@ -25,6 +25,31 @@ If you have Sarif 2.1 files, you can point soosio/sast to the directory containi
 docker run -u soos -v c:/my-sarif-folder:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator file --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
+### Gitleaks
+To run Gitleaks secret detection:
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+To customize the Gitleaks execution, you can pass in `--otherOptions`, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --otherOptions "--max-archive-depth 1 --max-target-megabytes 10" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+### Opengrep
+To run Opengrep against your source code:
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+To customize the Opengrep execute, you can pass in `--otherOptions`, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --otherOptions "--no-git-ignore -f /home/soos/opengrep-rules/typescript -f /home/soos/opengrep-rules/generic" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+The rules available are from the [opengrep/rules repository](https://github.com/opengrep/opengrep-rules/tree/main) and were installed at the time of `soosio/sast` image build. They are all installed to `/home/soos/opengrep-rules` and can be used via a customized 
+command line via `--otherOptions` as noted above.
+
 ### Semgrep
 To run Semgrep against your source code:
 ``` shell
@@ -33,23 +58,12 @@ docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast 
 
 To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
 ``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
 To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
 ``` shell
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--config=auto" --apiKey xxxx --clientId xxxx --projectName xxxx
-```
-
-### Gitleaks
-To run Gitleaks:
-``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --apiKey xxxx --clientId xxxx --projectName xxxx
-```
-
-To customize the Gitleaks execution, you can pass in `--otherOptions`, e.g.
-``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --otherOptions "--max-archive-depth 1 --max-target-megabytes 10" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
 ### SonarQube
@@ -80,5 +94,5 @@ If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only |
 | `--otherOptions` |  | Additional arguments passed to the sarif generator |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app |
-| `--sarifGenerator` |  | The generator for Sarif 2.1 ingest: file, semgrep, sonarqube, gitleaks |
+| `--sarifGenerator` |  | The generator for Sarif 2.1 ingest: file, gitleaks, opengrep, semgrep, sonarqube |
 
