@@ -26,7 +26,7 @@ docker run -u soos -v c:/my-sarif-folder:/home/soos/wrk/:rw -it --rm soosio/sast
 ```
 
 ### Gitleaks
-To run Gitleaks:
+To run Gitleaks secret detection:
 ``` shell
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator gitleaks --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
@@ -47,7 +47,8 @@ To customize the Opengrep execute, you can pass in `--otherOptions`, e.g.
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --otherOptions "--no-git-ignore -f /home/soos/opengrep-rules/typescript -f /home/soos/opengrep-rules/generic" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-The rules available are from the [opengrep/rules repository](https://github.com/opengrep/opengrep-rules/tree/main) and are installed to `/home/soos/opengrep-rules`
+The rules available are from the [opengrep/rules repository](https://github.com/opengrep/opengrep-rules/tree/main) and were installed at the time of `soosio/sast` image build. They are all installed to `/home/soos/opengrep-rules` and can be used via a customized 
+command line via `--otherOptions` as noted above.
 
 ### Semgrep
 To run Semgrep against your source code:
