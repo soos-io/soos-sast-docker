@@ -200,10 +200,10 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       case SarifGeneratorEnum.Opengrep: {
         const opengrepBin = "/home/soos/.local/bin/opengrep";
         const opengrepOptions =
-          args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "--no-git-ignore";
+          args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
-          `${opengrepBin} scan${verboseArg} --max-log-list-entries=2000 ${opengrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          `${opengrepBin} scan${verboseArg} --no-force-color --max-log-list-entries=2000 ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }
@@ -213,9 +213,9 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
           args.otherOptions && args.otherOptions.length > 0
             ? args.otherOptions
             : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
-        const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : ""; // note: -q still dumps the results to stdout https://semgrep.dev/docs/kb/semgrep-code/collect-cli-logs
+        const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
-          `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepOptions} --sarif --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          `${semgrepBin} scan${verboseArg} --no-force-color --max-log-list-entries=2000 ${semgrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }

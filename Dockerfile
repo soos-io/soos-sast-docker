@@ -9,8 +9,8 @@ RUN apt-get update && \
         python3-pip \
         pipx \
         curl \
-        build-essential \
         wget \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system soos && useradd --system --create-home --gid soos soos
