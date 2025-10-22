@@ -1,6 +1,10 @@
 FROM node:22-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV PYTHONUTF8=1
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -22,15 +26,27 @@ WORKDIR /home/soos
 
 RUN pipx ensurepath
 
+# Gitleaks
 RUN curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
     | grep "browser_download_url.*linux_x64\.tar\.gz" \
     | cut -d '"' -f 4 \
     | wget -qi - -O gitleaks.tar.gz \
     && tar -xzf gitleaks.tar.gz && rm gitleaks.tar.gz
-RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
-RUN python3 -m pipx install sonar-tools
+
+# Semgrep
 RUN python3 -m pipx install semgrep
 
+# SonarQube
+RUN python3 -m pipx install sonar-tools
+
+# Opengrep
+RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+RUN git clone https://github.com/opengrep/opengrep-rules.git /home/soos/opengrep-rules
+WORKDIR /home/soos/opengrep-rules
+RUN rm -rf .git .github .pre-commit-config.yaml && find . -type f -not -iname "*.yaml" -delete
+WORKDIR /home/soos
+
+# SOOS
 COPY --chown=soos:soos ./src/ ./src/
 COPY ./tsconfig.json ./
 COPY ./package.json ./

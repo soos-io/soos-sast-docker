@@ -200,10 +200,12 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       case SarifGeneratorEnum.Opengrep: {
         const opengrepBin = "/home/soos/.local/bin/opengrep";
         const opengrepOptions =
-          args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "";
+          args.otherOptions && args.otherOptions.length > 0
+            ? args.otherOptions
+            : "--no-git-ignore -f /home/soos/opengrep-rules";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
-          `${opengrepBin} scan${verboseArg} --no-force-color --max-log-list-entries=2000 ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          `${opengrepBin} scan${verboseArg} --max-log-list-entries=2000 ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }
@@ -215,7 +217,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
             : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
-          `${semgrepBin} scan${verboseArg} --no-force-color --max-log-list-entries=2000 ${semgrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }

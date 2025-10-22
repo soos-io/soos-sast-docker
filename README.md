@@ -42,6 +42,13 @@ To run Opengrep against your source code:
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
+To customize the Opengrep execute, you can pass in `--otherOptions`, e.g.
+``` shell
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --otherOptions "--no-git-ignore -f /home/soos/opengrep-rules/typescript -f /home/soos/opengrep-rules/generic" --apiKey xxxx --clientId xxxx --projectName xxxx
+```
+
+The rules available are from the [opengrep/rules repository](https://github.com/opengrep/opengrep-rules/tree/main) and are installed to `/home/soos/opengrep-rules`
+
 ### Semgrep
 To run Semgrep against your source code:
 ``` shell
