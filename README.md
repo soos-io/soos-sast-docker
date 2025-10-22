@@ -33,7 +33,7 @@ docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast 
 
 To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
 ``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/owasp-top-ten --config p/cwe-top-25 --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
 To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
@@ -55,10 +55,10 @@ docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast 
 ### SonarQube
 If you are using SonarQube, you can export your issues from your instance:
 ``` shell
-docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -it --rm soosio/sast --sarifGenerator sonarqube --otherOptions "--url zzzz --token zzzz -k myProjectKey" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools?tab=readme-ov-file#sonar-findings-export)
+The `--otherOptions` parameter allows you to pass in available options for the [Sonar findings export tool](https://github.com/okorach/sonar-tools/blob/master/doc/sonar-findings-export.md)
 
 If SonarQube is running on the same host as `soosio/sast` and the URL is not DNS accessible, you will need to use the Docker host URL, e.g. `--otherOptions "-url http://host.docker.internal:9000 ..."`
 
