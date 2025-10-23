@@ -61,10 +61,11 @@ To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-To login to semgrep and use your auto config via `semgrep ci` an environment variable with your `SEMGREP_APP_TOKEN`, e.g.
+To login to semgrep and use your auto config via `semgrep ci` add an environment variable with your `SEMGREP_APP_TOKEN`, e.g.
 ``` shell
 docker run -u soos -v c:/my-git-based-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
+This will run the `--code` scan against your checked out repository noted by the mount point.
 
 ### SonarQube
 If you are using SonarQube, you can export your issues from your instance:
