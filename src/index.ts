@@ -53,11 +53,15 @@ const splitCommand = (input: string): string[] => {
   return result;
 };
 
-const runCommand = (command: string, throwOnNonZeroExitCode: boolean = true): Promise<void> => {
+const runCommand = (
+  command: string,
+  throwOnNonZeroExitCode: boolean = true,
+  cwd: string | undefined = undefined,
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     soosLogger.debug(`Running command: ${command}`);
     const [cmd, ...args] = splitCommand(command);
-    const proc = spawn(cmd, args, { stdio: "inherit" });
+    const proc = spawn(cmd, args, { cwd, stdio: "inherit" });
     proc.on("close", (code) => {
       if (code === 0 || !throwOnNonZeroExitCode) {
         resolve();
@@ -211,14 +215,34 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       }
       case SarifGeneratorEnum.Semgrep: {
         const semgrepBin = "/home/soos/.local/pipx/venvs/semgrep/bin/semgrep";
-        const semgrepOptions =
-          args.otherOptions && args.otherOptions.length > 0
-            ? args.otherOptions
-            : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
-        await runCommand(
-          `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
-        );
+
+        const semgrepToken = process.env.SEMGREP_APP_TOKEN;
+        if (semgrepToken && semgrepToken.length > 0) {
+          // semgrep ci
+          await runCommand(
+            `${semgrepBin} login`,
+            true,
+            SOOS_SAST_Docker_CONSTANTS.WorkingDirectory,
+          );
+          const semgrepCiOptions =
+            args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "--code";
+          await runCommand(
+            `${semgrepBin} ci${verboseArg} ${semgrepCiOptions} --sarif-output=${sarifOutFile}`,
+            true,
+            SOOS_SAST_Docker_CONSTANTS.WorkingDirectory,
+          );
+          await runCommand(`${semgrepBin} logout`);
+        } else {
+          // semgrep scan
+          const semgrepScanOptions =
+            args.otherOptions && args.otherOptions.length > 0
+              ? args.otherOptions
+              : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
+          await runCommand(
+            `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepScanOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          );
+        }
         break;
       }
       case SarifGeneratorEnum.SonarQube: {

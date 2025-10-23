@@ -51,20 +51,21 @@ The rules available are from the [opengrep/rules repository](https://github.com/
 command line via `--otherOptions` as noted above.
 
 ### Semgrep
-To run Semgrep against your source code:
+To run Semgrep against your source code without logging in:
 ``` shell
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-To customize the Semgrep execution, you can pass in `--otherOptions`, e.g.
+To customize the Semgrep scan execution, you can pass in `--otherOptions`, e.g.
 ``` shell
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--no-git-ignore --metrics=off --config p/typescript" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-To login to semgrep and use your auto config, use `--otherOptions` and an environment variable, e.g.
+To login to Semgrep and use your auto config via `semgrep ci` add an environment variable with your `SEMGREP_APP_TOKEN`, e.g.
 ``` shell
-docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --otherOptions "--config=auto" --apiKey xxxx --clientId xxxx --projectName xxxx
+docker run -u soos -v c:/my-git-based-source-code:/home/soos/wrk/:rw -e SEMGREP_APP_TOKEN=tttt -it --rm soosio/sast --sarifGenerator semgrep --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
+This will run the `--code` scan against your checked out repository noted by the mount point.
 
 ### SonarQube
 If you are using SonarQube, you can export your issues from your instance:
