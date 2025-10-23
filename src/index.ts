@@ -226,9 +226,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
             SOOS_SAST_Docker_CONSTANTS.WorkingDirectory,
           );
           const semgrepCiOptions =
-            args.otherOptions && args.otherOptions.length > 0
-              ? args.otherOptions
-              : "--metrics=off --code";
+            args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "--code";
           await runCommand(
             `${semgrepBin} ci${verboseArg} ${semgrepCiOptions} --sarif-output=${sarifOutFile}`,
             true,
