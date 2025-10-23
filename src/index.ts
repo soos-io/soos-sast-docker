@@ -219,6 +219,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
 
         const semgrepToken = process.env.SEMGREP_APP_TOKEN;
         if (semgrepToken && semgrepToken.length > 0) {
+          // semgrep ci
           await runCommand(
             `${semgrepBin} login`,
             true,
@@ -235,12 +236,13 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
           );
           await runCommand(`${semgrepBin} logout`);
         } else {
+          // semgrep scan
           const semgrepScanOptions =
             args.otherOptions && args.otherOptions.length > 0
               ? args.otherOptions
               : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
           await runCommand(
-            `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepScanOptions} --sarif-output=${sarifOutFile}`,
+            `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepScanOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
           );
         }
         break;
