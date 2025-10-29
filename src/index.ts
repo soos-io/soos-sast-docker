@@ -209,7 +209,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
             : "--no-git-ignore -f /home/soos/opengrep-rules";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
         await runCommand(
-          `${opengrepBin} scan${verboseArg} --max-log-list-entries=2000 ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+          `${opengrepBin} scan${verboseArg} ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
         break;
       }
@@ -228,7 +228,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
           const semgrepCiOptions =
             args.otherOptions && args.otherOptions.length > 0 ? args.otherOptions : "--code";
           await runCommand(
-            `${semgrepBin} ci${verboseArg} ${semgrepCiOptions} --sarif-output=${sarifOutFile}`,
+            `${semgrepBin} ci${verboseArg} --no-suppress-errors ${semgrepCiOptions} --sarif-output=${sarifOutFile}`,
             true,
             SOOS_SAST_Docker_CONSTANTS.WorkingDirectory,
           );
@@ -240,7 +240,7 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
               ? args.otherOptions
               : "--no-git-ignore --metrics off --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config p/security-audit --config p/secrets";
           await runCommand(
-            `${semgrepBin} scan${verboseArg} --max-log-list-entries=2000 ${semgrepScanOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
+            `${semgrepBin} scan${verboseArg} ${semgrepScanOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
           );
         }
         break;
