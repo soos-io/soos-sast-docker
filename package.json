@@ -1,6 +1,6 @@
 {
   "name": "soos-sast-docker",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "SOOS SAST - The affordable no limit web vulnerability scanner. Scan your code for vulnerabilities. Register for a free trial at https://app.soos.io/register",
   "scripts": {
     "setup:install": "npm install",
@@ -22,8 +22,8 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@soos-io/api-client": "1.9.8",
-    "@soos-io/soos-sast": "1.2.7",
+    "@soos-io/api-client": "1.9.9",
+    "@soos-io/soos-sast": "1.2.9",
     "@types/node": "^24.10.1",
     "tslib": "^2.8.0"
   },
