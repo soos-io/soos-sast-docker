@@ -175,7 +175,7 @@ const normalizeFilePaths = async (sarifOutFile: string): Promise<void> => {
   try {
     await fs.access(sarifOutFile);
   } catch {
-    console.warn(`Sarif output does not exist: ${sarifOutFile}`);
+    soosLogger.warn(`Sarif output does not exist: ${sarifOutFile}`);
     return;
   }
 
