@@ -51,7 +51,7 @@ To customize the Opengrep execute, you can pass in `--otherOptions`, e.g.
 docker run -u soos -v c:/my-source-code:/home/soos/wrk/:rw -it --rm soosio/sast --sarifGenerator opengrep --otherOptions "--no-git-ignore -f /home/soos/opengrep-rules/typescript -f /home/soos/opengrep-rules/generic" --apiKey xxxx --clientId xxxx --projectName xxxx
 ```
 
-The rules available are from the [opengrep/rules repository](https://github.com/opengrep/opengrep-rules/tree/main) and were installed at the time of `soosio/sast` image build. They are all installed to `/home/soos/opengrep-rules` and can be used via a customized 
+The rules available are from the [semgrep/semgrep-rules community rules repository](https://github.com/semgrep/semgrep-rules) and are installed at the time of execution. They are all installed to `/home/soos/opengrep-rules` and can be used via a customized 
 command line via `--otherOptions` as noted above.
 
 ### Semgrep

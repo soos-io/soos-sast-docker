@@ -41,10 +41,6 @@ RUN python3 -m pipx install sonar-tools
 
 # Opengrep
 RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
-RUN git clone https://github.com/opengrep/opengrep-rules.git /home/soos/opengrep-rules
-WORKDIR /home/soos/opengrep-rules
-RUN rm -rf .git .github .pre-commit-config.yaml && find . -type f -not -iname "*.yaml" -delete
-WORKDIR /home/soos
 
 # SOOS
 COPY --chown=soos:soos ./src/ ./src/

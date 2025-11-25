@@ -2,6 +2,7 @@
 import { exit } from "process";
 import { version } from "../package.json";
 import { spawn } from "child_process";
+import { promises as fs } from "fs";
 import {
   AttributionFileTypeEnum,
   AttributionFormatEnum,
@@ -170,6 +171,25 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
   return analysisArgumentParser.parseArguments();
 };
 
+const normalizeFilePaths = async (sarifOutFile: string): Promise<void> => {
+  try {
+    await fs.access(sarifOutFile);
+  } catch {
+    console.warn(`Sarif output does not exist: ${sarifOutFile}`);
+    return;
+  }
+
+  soosLogger.info("Cleaning Sarif output...");
+  const workingDirectoryPattern = new RegExp(
+    SOOS_SAST_Docker_CONSTANTS.WorkingDirectory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    "g",
+  );
+  const fileProtocolPattern = /file:\/\//g;
+  const content = await fs.readFile(sarifOutFile, "utf8");
+  const updated = content.replace(workingDirectoryPattern, "/").replace(fileProtocolPattern, "");
+  await fs.writeFile(sarifOutFile, updated, "utf8");
+};
+
 (async () => {
   try {
     const args = parseArgs();
@@ -208,6 +228,19 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
             ? args.otherOptions
             : "--no-git-ignore -f /home/soos/opengrep-rules";
         const verboseArg = args.logLevel == LogLevel.DEBUG ? " --verbose" : "";
+        await runCommand(
+          "git clone https://github.com/semgrep/semgrep-rules.git /home/soos/opengrep-rules",
+        );
+        await runCommand(
+          "rm -rf .git .github .pre-commit-config.yaml",
+          true,
+          "/home/soos/opengrep-rules",
+        );
+        await runCommand(
+          'find . -type f -not -iname "*.yaml" -delete',
+          true,
+          "/home/soos/opengrep-rules",
+        );
         await runCommand(
           `${opengrepBin} scan${verboseArg} ${opengrepOptions} --sarif-output=${sarifOutFile} ${SOOS_SAST_Docker_CONSTANTS.WorkingDirectory}`,
         );
@@ -260,6 +293,8 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
       default:
         throw new Error(`Sarif generator not implemented: ${args.sarifGenerator}`);
     }
+
+    await normalizeFilePaths(sarifOutFile);
 
     const soosCliArgs = mapToSoosSastCliArgs(args, {
       outputDirectory: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
