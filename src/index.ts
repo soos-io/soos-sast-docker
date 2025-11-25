@@ -179,14 +179,14 @@ const normalizeFilePaths = async (sarifOutFile: string): Promise<void> => {
     return;
   }
 
-  soosLogger.info("Cleaning Sarif output...");
+  soosLogger.info("Cleaning Sarif output");
   const workingDirectoryPattern = new RegExp(
     SOOS_SAST_Docker_CONSTANTS.WorkingDirectory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
     "g",
   );
   const fileProtocolPattern = /file:\/\//g;
   const content = await fs.readFile(sarifOutFile, "utf8");
-  const updated = content.replace(workingDirectoryPattern, "/").replace(fileProtocolPattern, "");
+  const updated = content.replace(workingDirectoryPattern, "").replace(fileProtocolPattern, "");
   await fs.writeFile(sarifOutFile, updated, "utf8");
 };
 
