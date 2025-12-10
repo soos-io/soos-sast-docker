@@ -39,6 +39,7 @@ interface ISASTAnalysisArgs extends IBaseScanArguments {
   filesToExclude: Array<string>;
   sourceCodePath: string;
   outputDirectory: string;
+  sarifGenerator: string;
 }
 
 const splitCommand = (input: string): string[] => {
@@ -107,6 +108,7 @@ const mapToSoosSastCliArgs = (
     operatingEnvironment: overrides.operatingEnvironment ?? args.operatingEnvironment,
     outputDirectory: ensureValue(overrides.outputDirectory, "overrides.outputDirectory"),
     projectName: overrides.projectName ?? args.projectName,
+    sarifGenerator: overrides.sarifGenerator ?? args.sarifGenerator,
     scanType: overrides.scanType ?? args.scanType,
     scriptVersion: overrides.scriptVersion ?? args.scriptVersion,
     sourceCodePath: ensureValue(overrides.sourceCodePath, "overrides.sourceCodePath"),
