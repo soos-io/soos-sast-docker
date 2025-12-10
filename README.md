@@ -14,6 +14,7 @@ If you maintain an Open Source project, sign up for the Free as in Beer [SOOS Co
 
 ## Requirements
 - [Docker](https://www.docker.com/get-started)
+- Internet access to download packages
 
 ## How to Use
 The `soosio/sast` docker image supports a number of various SAST scans. Below are a few examples of usage.
