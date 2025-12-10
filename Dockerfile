@@ -18,8 +18,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system soos && useradd --system --create-home --gid soos soos
-RUN mkdir -p /home/soos/wrk && chown -R soos:soos /home/soos/wrk && chmod -R 770 /home/soos/wrk
 RUN mkdir -p /home/soos/out && chown -R soos:soos /home/soos/out && chmod -R 770 /home/soos/out
+RUN mkdir -p /home/soos/sast && chown -R soos:soos /home/soos/sast && chmod -R 770 /home/soos/sast
+RUN mkdir -p /home/soos/wrk && chown -R soos:soos /home/soos/wrk && chmod -R 770 /home/soos/wrk
 
 USER soos
 WORKDIR /home/soos

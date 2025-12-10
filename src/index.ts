@@ -29,16 +29,18 @@ enum SarifGeneratorEnum {
 }
 
 interface ISASTDockerAnalysisArgs extends IBaseScanArguments {
-  sarifGenerator: SarifGeneratorEnum;
   otherOptions: string;
+  sarifGenerator: SarifGeneratorEnum;
+  soosSastVersion: string;
 }
 
 // NOTE: these are the underlying args for SOOS SAST
 interface ISASTAnalysisArgs extends IBaseScanArguments {
   directoriesToExclude: Array<string>;
   filesToExclude: Array<string>;
-  sourceCodePath: string;
   outputDirectory: string;
+  sarifGenerator: string;
+  sourceCodePath: string;
 }
 
 const splitCommand = (input: string): string[] => {
@@ -107,6 +109,7 @@ const mapToSoosSastCliArgs = (
     operatingEnvironment: overrides.operatingEnvironment ?? args.operatingEnvironment,
     outputDirectory: ensureValue(overrides.outputDirectory, "overrides.outputDirectory"),
     projectName: overrides.projectName ?? args.projectName,
+    sarifGenerator: overrides.sarifGenerator ?? args.sarifGenerator,
     scanType: overrides.scanType ?? args.scanType,
     scriptVersion: overrides.scriptVersion ?? args.scriptVersion,
     sourceCodePath: ensureValue(overrides.sourceCodePath, "overrides.sourceCodePath"),
@@ -156,6 +159,11 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     version,
   );
 
+  analysisArgumentParser.addArgument(
+    "otherOptions",
+    "Other command line arguments sent directly to the Sarif generator.",
+  );
+
   analysisArgumentParser.addEnumArgument(
     "sarifGenerator",
     SarifGeneratorEnum,
@@ -163,9 +171,11 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     { defaultValue: SarifGeneratorEnum.Semgrep },
   );
 
+  // NOTE: normally this would be scriptVersion, but we are using the argumentParser as part of this wrapper
   analysisArgumentParser.addArgument(
-    "otherOptions",
-    "Other command line arguments sent directly to the Sarif generator.",
+    "soosSastVersion",
+    "The @soos-io/soos-sast version to use. Defaults to 'latest'",
+    { defaultValue: "latest" },
   );
 
   return analysisArgumentParser.parseArguments();
@@ -201,6 +211,10 @@ const normalizeFilePaths = async (sarifOutFile: string): Promise<void> => {
         null,
         2,
       ),
+    );
+
+    await runCommand(
+      `npm install --prefix /home/soos/sast @soos-io/soos-sast@${args.soosSastVersion}`,
     );
 
     const sarifOutFile = `${SOOS_SAST_Docker_CONSTANTS.OutputDirectory}/soosio.sast.sarif.json`;
@@ -297,12 +311,17 @@ const normalizeFilePaths = async (sarifOutFile: string): Promise<void> => {
     await normalizeFilePaths(sarifOutFile);
 
     const soosCliArgs = mapToSoosSastCliArgs(args, {
-      outputDirectory: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
-      filesToExclude: [],
+      appVersion: version,
       directoriesToExclude: [],
+      filesToExclude: [],
+      outputDirectory: SOOS_SAST_Docker_CONSTANTS.OutputDirectory,
+      scriptVersion: args.soosSastVersion,
       sourceCodePath,
     });
-    await runCommand(`node ./node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`, false);
+    await runCommand(
+      `node /home/soos/sast/node_modules/@soos-io/soos-sast/bin/index.js ${soosCliArgs}`,
+      false,
+    );
   } catch (error) {
     soosLogger.error(`Error: ${error}`);
     soosLogger.always(`Error: ${error} - exit 1`);
