@@ -168,14 +168,14 @@ const parseArgs = (): ISASTDockerAnalysisArgs => {
     "sarifGenerator",
     SarifGeneratorEnum,
     "Generator (or file source) for SOOS SAST's Sarif 2.1 input. Defaults to Semgrep.",
-    { defaultValue: SarifGeneratorEnum.Semgrep },
+    { defaultValue: SarifGeneratorEnum.Semgrep, excludeDefault: SarifGeneratorEnum.Unknown },
   );
 
   // NOTE: normally this would be scriptVersion, but we are using the argumentParser as part of this wrapper
   analysisArgumentParser.addArgument(
     "soosSastVersion",
     "The @soos-io/soos-sast version to use. Defaults to 'latest'",
-    { defaultValue: "latest" },
+    { defaultValue: "latest", internal: true },
   );
 
   return analysisArgumentParser.parseArguments();

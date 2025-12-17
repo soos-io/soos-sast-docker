@@ -1,4 +1,3 @@
 {
-  "ignoreDependencies": ["@soos-io/soos-sast"],
   "ignoreBinaries": ["rimraf","npm-check"]
 }
