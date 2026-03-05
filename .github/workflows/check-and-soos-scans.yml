@@ -1,0 +1,26 @@
+name: Check and SOOS SCA/SAST Scans
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  check:
+    uses: soos-io/.github/.github/workflows/npm-check-workflow.yml@main
+    secrets: inherit
+
+  soos-sca:
+    needs: check
+    uses: soos-io/.github/.github/workflows/soos-sca-workflow.yml@main
+    secrets: inherit
+
+  soos-sast-docker:
+    needs: check
+    uses: soos-io/.github/.github/workflows/soos-sast-docker-workflow.yml@main
+    secrets: inherit
