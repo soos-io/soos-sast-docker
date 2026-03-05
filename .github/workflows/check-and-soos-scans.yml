@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   check:
     uses: soos-io/.github/.github/workflows/npm-check-workflow.yml@main

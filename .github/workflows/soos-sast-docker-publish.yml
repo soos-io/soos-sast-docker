@@ -9,6 +9,11 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   docker:
     uses: soos-io/.github/.github/workflows/docker-publish-workflow.yml@main
